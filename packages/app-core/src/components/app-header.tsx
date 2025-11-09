@@ -34,6 +34,7 @@ export function AppHeader() {
                 href={link.href}
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
                 target="_blank"
+                rel="noreferrer"
               >
                 {link.label}
               </a>

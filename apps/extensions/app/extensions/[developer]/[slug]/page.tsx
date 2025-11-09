@@ -1,10 +1,11 @@
+import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Button } from "@serp-extensions/ui/components/button";
 import { Badge } from "@serp-extensions/ui/components/badge";
-import { Star, Users, ExternalLink, Globe, Check, Tag, Zap } from "lucide-react";
+import { Star, Users, ExternalLink, Globe, Check, Tag } from "lucide-react";
 import { getExtensionByDeveloperAndSlug, getCategoryBySlug, getTopics } from "@serp-extensions/app-core/lib/catalog";
-import { getTopicUrl } from "@serp-extensions/app-core/lib/urls";
+import { getBestUrl } from "@serp-extensions/app-core/lib/urls";
 import { RelatedToolsSection } from "@/components/sections/RelatedToolsSection";
 import { Breadcrumbs } from "@/components/shared/Breadcrumbs";
 
@@ -331,22 +332,41 @@ export default async function ExtensionPage({ params }: PageProps) {
         </div>
       )}
 
-      {/* Topics Section */}
-      {extension.topics && extension.topics.length > 0 && extensionTopics.length > 0 && (
-        <div className="py-12 border-b">
+      {/* Topics (badges) */}
+      {extensionTopics.length > 0 && (
+        <div className="py-12 bg-white border-b">
           <div className="container mx-auto px-4 max-w-4xl">
             <div className="flex items-center gap-2 mb-6">
-              <Zap className="w-6 h-6 text-blue-600" />
-              <h3 className="text-2xl font-bold text-gray-900">Topics & Categories</h3>
+              <Tag className="w-6 h-6 text-blue-600" />
+              <h3 className="text-2xl font-bold text-gray-900">Topics</h3>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {extensionTopics.map((topic) => (
-                <Link key={topic.id} href={getTopicUrl(topic.slug)}>
-                  <Badge variant="secondary" className="text-base py-2 px-4 cursor-pointer hover:bg-gray-300 transition-colors">
+                <Link key={topic.id} href={getBestUrl(topic.slug)}>
+                  <Badge variant="outline" className="text-base py-2 px-3 cursor-pointer capitalize">
                     {topic.name}
                   </Badge>
                 </Link>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Categories (badge) */}
+      {category && (
+        <div className="py-12 bg-white border-b">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <div className="flex items-center gap-2 mb-6">
+              <Tag className="w-6 h-6 text-blue-600" />
+              <h3 className="text-2xl font-bold text-gray-900">Categories</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href={`/categories/${category.slug}`}>
+                <Badge variant="outline" className="text-base py-2 px-3 cursor-pointer capitalize">
+                  {category.name}
+                </Badge>
+              </Link>
             </div>
           </div>
         </div>

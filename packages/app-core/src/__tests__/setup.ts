@@ -13,6 +13,6 @@ vi.mock('react', async () => {
   const actual = await vi.importActual('react');
   return {
     ...actual,
-    cache: (fn: any) => fn, // In tests, just return the function unwrapped
+    cache: <T extends (...args: unknown[]) => unknown>(fn: T) => fn, // In tests, just return the function unwrapped
   };
 });

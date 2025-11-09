@@ -43,7 +43,7 @@ export async function RelatedToolsSection({ currentExtensionId, category }: Rela
 
   return (
     <>
-      <h2 className="text-2xl font-bold text-center mb-8 text-gray-900">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">
         Related Extensions
       </h2>
 

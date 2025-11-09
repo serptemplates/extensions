@@ -4,6 +4,8 @@ import { cache } from "react";
 import { eq, desc } from "drizzle-orm";
 
 import extensionsJson from "../data/extensions.json";
+import fs from "node:fs";
+import path from "node:path";
 import { getDb } from "../db/client";
 import * as dbSchema from "../db/schema";
 import type { ExtensionRow, CategoryRow, TopicRow } from "../db/schema";
@@ -83,6 +85,83 @@ function parseStringArray(value: unknown): string[] {
   return [];
 }
 
+function toTitle(slug: string): string {
+  return slug
+    .split("-")
+    .map((w) => (w ? w[0]!.toUpperCase() + w.slice(1) : w))
+    .join(" ");
+}
+
+type RawProduct = {
+  slug?: string;
+  name?: string;
+  description?: string;
+  seo_description?: string;
+  categories?: string[];
+  apps_serp_co_product_page_url?: string;
+  serp_co_product_page_url?: string;
+  icon?: string;
+};
+
+function safeReadLocalProducts(): ExtensionRecord[] {
+  try {
+    const root = process.cwd();
+    const productsDir = path.resolve(root, ".products");
+    if (!fs.existsSync(productsDir)) return [];
+    const files = fs.readdirSync(productsDir).filter((f) => f.endsWith(".json"));
+    const items: ExtensionRecord[] = [];
+    for (const file of files) {
+      try {
+        const fp = path.join(productsDir, file);
+        const raw = fs.readFileSync(fp, "utf8");
+        const json = JSON.parse(raw) as RawProduct;
+        const slug: string = json.slug || file.replace(/\.json$/, "");
+        const name: string = json.name || toTitle(slug);
+        const description: string = json.description || json.seo_description || "";
+        const category: string | undefined = (json.categories && json.categories[0]) || undefined;
+        const url: string | undefined = json.apps_serp_co_product_page_url || json.serp_co_product_page_url || undefined;
+        const icon: string | undefined = json.icon || undefined;
+        const record: ExtensionRecord = {
+          id: slug,
+          slug,
+          name,
+          description,
+          overview: undefined,
+          category,
+          tags: [],
+          topics: [],
+          icon,
+          screenshots: [],
+          features: [],
+          languages: [],
+          chromeStoreUrl: undefined,
+          firefoxAddonUrl: undefined,
+          website: url,
+          url,
+          privacyPolicy: undefined,
+          supportSite: undefined,
+          isActive: true,
+          isPopular: false,
+          rating: undefined,
+          ratingCount: undefined,
+          users: undefined,
+          version: undefined,
+          updated: undefined,
+          size: undefined,
+          developer: undefined,
+          developerUsername: "serp",
+        };
+        items.push(record);
+      } catch {
+        // skip malformed product file
+      }
+    }
+    return items;
+  } catch {
+    return [];
+  }
+}
+
 function normalizeCategoryRow(row: CategoryRow): CategoryRecord {
   return {
     id: row.id,
@@ -145,35 +224,82 @@ function normalizeExtensionRow(row: ExtensionRow): ExtensionRecord {
 const loadCategories = cache(async (): Promise<CategoryRecord[]> => {
   const db = getDb();
   if (!db) {
-    return [];
+    // Derive from extensions dataset
+    const exts = await getActiveExtensions();
+    const set = new Map<string, CategoryRecord>();
+    for (const e of exts) {
+      if (e.category) {
+        const slug = e.category;
+        if (!set.has(slug)) {
+          set.set(slug, { id: slug, slug, name: toTitle(slug) });
+        }
+      }
+    }
+    return Array.from(set.values()).sort((a, b) => a.name.localeCompare(b.name));
   }
 
   try {
     const rows = await db.select().from(dbSchema.categories).orderBy(dbSchema.categories.name);
     return rows.map(normalizeCategoryRow);
   } catch {
-    return [];
+    const exts = await getActiveExtensions();
+    const set = new Map<string, CategoryRecord>();
+    for (const e of exts) {
+      if (e.category) {
+        const slug = e.category;
+        if (!set.has(slug)) {
+          set.set(slug, { id: slug, slug, name: toTitle(slug) });
+        }
+      }
+    }
+    return Array.from(set.values()).sort((a, b) => a.name.localeCompare(b.name));
   }
 });
 
 const loadTopics = cache(async (): Promise<TopicRecord[]> => {
   const db = getDb();
   if (!db) {
-    return [];
+    // Derive from extensions dataset
+    const exts = await getActiveExtensions();
+    const set = new Map<string, TopicRecord>();
+    for (const e of exts) {
+      for (const t of e.topics || []) {
+        if (!set.has(t)) {
+          set.set(t, { id: `topic_${t}`, slug: t, name: toTitle(t) });
+        }
+      }
+    }
+    return Array.from(set.values()).sort((a, b) => a.name.localeCompare(b.name));
   }
 
   try {
     const rows = await db.select().from(dbSchema.topics).orderBy(dbSchema.topics.name);
     return rows.map(normalizeTopicRow);
   } catch {
-    return [];
+    const exts = await getActiveExtensions();
+    const set = new Map<string, TopicRecord>();
+    for (const e of exts) {
+      for (const t of e.topics || []) {
+        if (!set.has(t)) {
+          set.set(t, { id: `topic_${t}`, slug: t, name: toTitle(t) });
+        }
+      }
+    }
+    return Array.from(set.values()).sort((a, b) => a.name.localeCompare(b.name));
   }
 });
 
 const loadExtensions = cache(async (): Promise<ExtensionRecord[]> => {
   const db = getDb();
   if (!db) {
-    return (extensionsJson as ExtensionRecord[]).map(cloneExtension);
+    const base = (extensionsJson as ExtensionRecord[]).map(cloneExtension);
+    const extras = safeReadLocalProducts();
+    // Merge by slug to avoid duplicates
+    const map = new Map<string, ExtensionRecord>();
+    for (const e of [...base, ...extras]) {
+      map.set(e.slug, e);
+    }
+    return Array.from(map.values());
   }
 
   try {
@@ -184,7 +310,13 @@ const loadExtensions = cache(async (): Promise<ExtensionRecord[]> => {
 
     return rows.map(normalizeExtensionRow);
   } catch {
-    return (extensionsJson as ExtensionRecord[]).map(cloneExtension);
+    const base = (extensionsJson as ExtensionRecord[]).map(cloneExtension);
+    const extras = safeReadLocalProducts();
+    const map = new Map<string, ExtensionRecord>();
+    for (const e of [...base, ...extras]) {
+      map.set(e.slug, e);
+    }
+    return Array.from(map.values());
   }
 });
 
@@ -204,7 +336,7 @@ export async function getActiveExtensions(): Promise<ExtensionRecord[]> {
 export async function getFeaturedExtensions(limit: number = 12): Promise<ExtensionRecord[]> {
   const db = getDb();
   if (!db) {
-    const extensions = (extensionsJson as ExtensionRecord[])
+    const extensions = (await getActiveExtensions())
       .filter((ext) => ext.isActive !== false)
       .sort((a, b) => {
         // Prioritize: isPopular > rating > name
@@ -285,7 +417,11 @@ export async function getExtensionByDeveloperAndSlug(
       .where(eq(dbSchema.extensions.slug, extensionSlug))
       .limit(1);
 
-    if (rows.length === 0) return null;
+    if (rows.length === 0) {
+      // Fallback to JSON dataset if DB has no match
+      const extensions = await getActiveExtensions();
+      return extensions.find((ext) => ext.slug === extensionSlug) ?? null;
+    }
 
     const row = rows[0]!;
     

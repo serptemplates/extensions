@@ -1,4 +1,5 @@
 import { CollectionCard, type CollectionItem } from "./CollectionCard";
+export type { CollectionItem } from "./CollectionCard";
 
 export function CollectionGrid({ items }: { items: CollectionItem[] }) {
   if (items.length === 0) return null;
@@ -10,4 +11,3 @@ export function CollectionGrid({ items }: { items: CollectionItem[] }) {
     </div>
   );
 }
-

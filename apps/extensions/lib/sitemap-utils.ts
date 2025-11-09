@@ -1,5 +1,5 @@
 import extensionsData from '@serp-extensions/app-core/data/extensions.json';
-import { getAllTopics, getAllCategories } from '@serp-extensions/app-core/db/queries';
+import { getTopics, getCategories } from '@serp-extensions/app-core/lib/catalog';
 import { getExtensionUrl, getBestUrl } from '@serp-extensions/app-core/lib/urls';
 
 export const SITEMAP_PAGE_SIZE = 20000;
@@ -61,7 +61,7 @@ export async function buildTopicEntries(): Promise<SitemapEntry[]> {
   const baseUrl = resolveBaseUrl();
   
   try {
-    const allTopics = await getAllTopics();
+    const allTopics = await getTopics();
     
     // Filter out topics with no extensions
     const topics = allTopics.filter((topic) => {
@@ -74,7 +74,7 @@ export async function buildTopicEntries(): Promise<SitemapEntry[]> {
     
     return topics.map((topic) => ({
       loc: `${baseUrl}${getBestUrl(topic.slug)}`,
-      lastModified: topic.updatedAt || topic.createdAt || new Date(),
+      lastModified: new Date(),
       changeFrequency: "weekly",
       priority: topic.ahrefsSv && topic.ahrefsSv > 100000 ? 0.9 : 0.7,
     }));
@@ -88,7 +88,7 @@ export async function buildCategoryEntries(): Promise<SitemapEntry[]> {
   const baseUrl = resolveBaseUrl();
   
   try {
-    const allCategories = await getAllCategories();
+    const allCategories = await getCategories();
     
     // Filter out categories with no extensions
     const categories = allCategories.filter((category) => {
@@ -100,9 +100,9 @@ export async function buildCategoryEntries(): Promise<SitemapEntry[]> {
     
     return categories.map((category) => ({
       loc: `${baseUrl}/categories/${category.slug}`,
-      lastModified: category.updatedAt || category.createdAt || new Date(),
+      lastModified: new Date(),
       changeFrequency: "weekly",
-      priority: category.ahrefsSv && category.ahrefsSv > 100000 ? 0.9 : 0.7,
+      priority: 0.7,
     }));
   } catch (error) {
     console.error('Error building category entries:', error);
