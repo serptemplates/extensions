@@ -111,7 +111,7 @@ export default async function ExtensionPage({ params }: PageProps) {
 
                 {/* Title and Description */}
                 <h1 className="text-5xl font-bold mb-4 text-gray-900">{extension.name}</h1>
-                <p className="text-2xl text-gray-700 mb-8 leading-relaxed">{extension.description}</p>
+                <p className="text-2xl text-gray-700 mb-8 leading-relaxed">{extension.shortDescription}</p>
               </div>
             </div>
 

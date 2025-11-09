@@ -43,6 +43,13 @@
       "when": 1762672768198,
       "tag": "0005_rich_fenris",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1762702990925,
+      "tag": "0006_premium_randall",
+      "breakpoints": true
     }
   ]
 }

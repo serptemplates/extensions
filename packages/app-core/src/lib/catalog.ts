@@ -38,6 +38,7 @@ export interface ExtensionRecord {
   slug: string;
   name: string;
   description: string;
+  shortDescription: string;
   overview?: string;
   category?: string;
   tags: string[];

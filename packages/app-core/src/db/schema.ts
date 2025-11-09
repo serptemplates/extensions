@@ -8,6 +8,7 @@ import {
   timestamp,
   jsonb,
   primaryKey,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 export const developers = pgTable("developers", {
@@ -56,6 +57,7 @@ export const extensions = pgTable("extensions", {
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   pageTitle: text("page_title"),
+  shortDescription: varchar("short_description", { length: 75 }),
   description: text("description").notNull(),
   seoDescription: text("seo_description"),
   overview: text("overview"),
