@@ -1,0 +1,49 @@
+{
+  "name": "serp-extensions",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm --filter extensions build",
+    "dev": "pnpm --filter extensions dev",
+    "lint": "pnpm -r lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "audit:images": "node scripts/audit-images.mjs",
+    "fetch:store-assets": "node scripts/fetch-store-assets.mjs",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:push": "drizzle-kit push --config drizzle.config.ts",
+    "db:setup": "./scripts/setup-production-db.sh",
+    "db:export": "tsx scripts/export-db.ts",
+    "db:export:prod": "tsx scripts/export-db.ts --url=$DATABASE_URL",
+    "db:export:preview": "tsx scripts/export-db.ts --url=$SERP_EXTENSIONS_DB_DATABASE_URL",
+    "db:import": "tsx scripts/import-db.ts",
+    "db:wipe": "tsx scripts/wipe-db.ts",
+    "seed:topics": "tsx scripts/seed-topics.ts",
+    "seed:developers": "tsx scripts/seed-developers.ts",
+    "update:extensions": "tsx scripts/update-extensions-from-json.ts",
+    "import:categories": "tsx scripts/import-categories-topics.ts",
+    "db:dump": "tsx scripts/dump-db-summary.ts",
+    "db:dump:prod": "tsx scripts/dump-db-summary.ts --url=$DATABASE_URL",
+    "db:dump:preview": "tsx scripts/dump-db-summary.ts --url=$SERP_EXTENSIONS_DB_DATABASE_URL"
+  },
+  "devDependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "@serp-extensions/eslint-config": "workspace:*",
+    "@serp-extensions/typescript-config": "workspace:*",
+    "@vitest/ui": "^4.0.8",
+    "dotenv": "^17.2.3",
+    "drizzle-kit": "^0.31.6",
+    "next": "^15.5.6",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.6",
+    "typescript": "5.9.2",
+    "vitest": "^4.0.8"
+  },
+  "packageManager": "pnpm@10.4.1",
+  "engines": {
+    "node": ">=20"
+  }
+}

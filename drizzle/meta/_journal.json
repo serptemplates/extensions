@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1762651542950,
+      "tag": "0000_fat_vanisher",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1762658928857,
+      "tag": "0001_natural_the_initiative",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1762664078270,
+      "tag": "0002_warm_viper",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1762665010037,
+      "tag": "0003_sad_major_mapleleaf",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1762666786734,
+      "tag": "0004_green_logan",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1762672768198,
+      "tag": "0005_rich_fenris",
+      "breakpoints": true
+    }
+  ]
+}
