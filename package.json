@@ -10,6 +10,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "typecheck": "pnpm -r typecheck",
+    "vercel:setup": "tsx scripts/vercel-setup.ts",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "audit:images": "node scripts/audit-images.mjs",
     "fetch:store-assets": "node scripts/fetch-store-assets.mjs",

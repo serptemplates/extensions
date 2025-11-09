@@ -4,3 +4,4 @@
   "installCommand": "pnpm install",
   "outputDirectory": ".next"
 }
+
