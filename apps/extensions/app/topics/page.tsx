@@ -9,7 +9,7 @@ import { CollectionGrid, type CollectionItem } from "@/components/shared/Collect
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Browse All Topics - SERP Extensions",
+  title: "Browse by Topics",
   description: "Explore browser extensions by topic. Find the best extensions for password management, VPNs, ad blocking, productivity, and more.",
 };
 
