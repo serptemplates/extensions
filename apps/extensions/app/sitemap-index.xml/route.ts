@@ -22,7 +22,7 @@ export async function GET(): Promise<NextResponse> {
       return !latest || entry.lastModified > latest ? entry.lastModified : latest;
     }, null) ?? now;
 
-  const toolEntries = buildToolEntries();
+  const toolEntries = await buildToolEntries();
   const totalExtensionPages = toolEntries.length
     ? Math.max(1, Math.ceil(toolEntries.length / SITEMAP_PAGE_SIZE))
     : 0;
