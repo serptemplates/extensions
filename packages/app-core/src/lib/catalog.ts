@@ -66,6 +66,12 @@ export interface ExtensionRecord {
   developerUsername?: string; // Extracted from GitHub URL
 }
 
+function toShortDescription(description?: string, maxLen = 75): string {
+  const text = (description ?? "").trim();
+  if (text.length <= maxLen) return text;
+  return text.slice(0, Math.max(0, maxLen - 3)).trimEnd() + "...";
+}
+
 function cloneExtension(extension: ExtensionRecord): ExtensionRecord {
   return {
     ...extension,
@@ -127,6 +133,7 @@ function safeReadLocalProducts(): ExtensionRecord[] {
           slug,
           name,
           description,
+          shortDescription: toShortDescription(description),
           overview: undefined,
           category,
           tags: [],
@@ -188,13 +195,14 @@ function normalizeExtensionRow(row: ExtensionRow): ExtensionRecord {
   const ratingValue = row.rating ? Number(row.rating) : undefined;
 
   // Developer username will come from the joined developer table, not extracted here
-  const developerUsername = "unknown"; // Will be set by join queries
+  const developerUsername = undefined; // Will be set by join queries
 
   return {
     id: row.id,
     slug: row.slug,
     name: row.name,
     description: row.description,
+    shortDescription: row.shortDescription ?? toShortDescription(row.description),
     overview: row.overview ?? undefined,
     category: row.category ?? undefined,
     tags: parseStringArray(row.tags),

@@ -6,7 +6,9 @@ export function getExtensionUrl(extension: {
   developerUsername?: string; 
   id: string 
 }): string {
-  const developer = extension.developerUsername || "serp";
+  // Use developer slug from database if available (e.g., "serp" for your extensions)
+  // Otherwise fall back to the extension's ID (Chrome Store ID for third-party extensions)
+  const developer = extension.developerUsername || extension.id;
   return `/extensions/${developer}/${extension.slug}`;
 }
 
