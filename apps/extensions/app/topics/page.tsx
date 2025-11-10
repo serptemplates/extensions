@@ -1,5 +1,4 @@
-import { getTopics } from "@serp-extensions/app-core/lib/catalog";
-import extensionsData from "@serp-extensions/app-core/data/extensions.json";
+import { getTopicsWithCounts } from "@serp-extensions/app-core/lib/catalog";
 import type { Metadata } from "next";
 import { getBestUrl } from "@serp-extensions/app-core/lib/urls";
 import { ListHero } from "@/components/shared/ListHero";
@@ -14,16 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default async function TopicsPage() {
-  const allTopics = await getTopics();
+  const allTopics = await getTopicsWithCounts();
 
   // Filter out topics with no extensions
-  const topics = allTopics.filter((topic) => {
-    return extensionsData.some((ext) => 
-      ext.isActive && 
-      ext.topics && 
-      ext.topics.includes(topic.slug)
-    );
-  });
+  const topics = allTopics.filter((topic) => topic.count > 0);
 
   // Sort by search volume descending
   const sortedTopics = topics.sort((a, b) => {

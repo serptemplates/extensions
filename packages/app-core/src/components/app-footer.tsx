@@ -27,6 +27,16 @@ export function AppFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/categories" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  By Category
+                </Link>
+              </li>
+              <li>
+                <Link href="/topics" className="text-gray-600 hover:text-blue-600 transition-colors">
+                  By Topic
+                </Link>
+              </li>
+              <li>
                 <Link href="/best/password-manager" className="text-gray-600 hover:text-blue-600 transition-colors">
                   Password Managers
                 </Link>

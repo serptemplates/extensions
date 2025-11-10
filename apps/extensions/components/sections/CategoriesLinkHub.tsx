@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { getExtensionUrl } from "@serp-extensions/app-core/lib/urls";
-import extensionsData from '@serp-extensions/app-core/data/extensions.json';
 
 type ExtensionSummary = {
   id: string;
@@ -15,7 +14,7 @@ type ExtensionSummary = {
 };
 
 type CategoriesLinkHubProps = {
-  extensions?: ExtensionSummary[];
+  extensions: ExtensionSummary[];
 };
 
 type CategoryGroup = Record<string, Array<{ title: string; href: string }>>;
@@ -66,11 +65,7 @@ function sortGroups(groups: CategoryGroup): CategoryGroup {
 }
 
 export function CategoriesLinkHub({ extensions }: CategoriesLinkHubProps) {
-  const dataset = extensions && extensions.length > 0
-    ? extensions
-    : ((extensionsData as ExtensionSummary[]).filter((extension) => extension.isActive !== false));
-
-  const grouped = sortGroups(buildGroups(dataset));
+  const grouped = sortGroups(buildGroups(extensions));
 
   return (
     <section className="py-16 bg-gradient-to-b from-gray-100 to-gray-50 border-t border-gray-200">

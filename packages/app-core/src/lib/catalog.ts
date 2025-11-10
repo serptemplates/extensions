@@ -1,7 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql, and } from "drizzle-orm";
 
 import extensionsJson from "../data/extensions.json";
 import fs from "node:fs";
@@ -66,7 +66,7 @@ export interface ExtensionRecord {
   developerUsername?: string; // Extracted from GitHub URL
 }
 
-function toShortDescription(description?: string, maxLen = 75): string {
+function toShortDescription(description?: string, maxLen = 115): string {
   const text = (description ?? "").trim();
   if (text.length <= maxLen) return text;
   return text.slice(0, Math.max(0, maxLen - 3)).trimEnd() + "...";
@@ -588,19 +588,66 @@ export async function getCategoriesWithCounts(): Promise<Array<CategoryRecord & 
 }
 
 export async function getTopicsWithCounts(): Promise<Array<TopicRecord & { count: number }>> {
-  const [topics, extensions] = await Promise.all([getTopics(), getActiveExtensions()]);
-  const countMap = new Map<string, number>();
+  const db = getDb();
+  if (!db) {
+    // Fallback to JSON data
+    const [topics, extensions] = await Promise.all([getTopics(), getActiveExtensions()]);
+    const countMap = new Map<string, number>();
 
-  extensions.forEach((extension) => {
-    extension.topics.forEach((topicSlug) => {
-      countMap.set(topicSlug, (countMap.get(topicSlug) ?? 0) + 1);
+    extensions.forEach((extension) => {
+      extension.topics.forEach((topicSlug) => {
+        countMap.set(topicSlug, (countMap.get(topicSlug) ?? 0) + 1);
+      });
     });
-  });
 
-  return topics.map((topic) => ({
-    ...topic,
-    count: countMap.get(topic.slug) ?? 0,
-  }));
+    return topics.map((topic) => ({
+      ...topic,
+      count: countMap.get(topic.slug) ?? 0,
+    }));
+  }
+
+  try {
+    // Query database for topics with counts from junction table
+    const topics = await db.select().from(dbSchema.topics).orderBy(dbSchema.topics.name);
+    
+    const topicsWithCounts = await Promise.all(
+      topics.map(async (topic) => {
+        const countResult = await db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(dbSchema.topicsToExtensions)
+          .innerJoin(
+            dbSchema.extensions,
+            and(
+              eq(dbSchema.extensions.id, dbSchema.topicsToExtensions.extensionId),
+              eq(dbSchema.extensions.isActive, true)
+            )
+          )
+          .where(eq(dbSchema.topicsToExtensions.topicId, topic.id));
+        
+        return {
+          ...normalizeTopicRow(topic),
+          count: countResult[0]?.count ?? 0,
+        };
+      })
+    );
+
+    return topicsWithCounts;
+  } catch {
+    // Fallback to JSON data on error
+    const [topics, extensions] = await Promise.all([getTopics(), getActiveExtensions()]);
+    const countMap = new Map<string, number>();
+
+    extensions.forEach((extension) => {
+      extension.topics.forEach((topicSlug) => {
+        countMap.set(topicSlug, (countMap.get(topicSlug) ?? 0) + 1);
+      });
+    });
+
+    return topics.map((topic) => ({
+      ...topic,
+      count: countMap.get(topic.slug) ?? 0,
+    }));
+  }
 }
 
 export * as dbSchema from "../db/schema";

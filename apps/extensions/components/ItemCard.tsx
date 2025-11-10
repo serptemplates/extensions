@@ -98,11 +98,6 @@ export function ItemCard({ tool }: ItemCardProps) {
                 </CardTitle>
               </div>
             </div>
-            {tool.isPopular && (
-              <span className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full whitespace-nowrap">
-                Popular
-              </span>
-            )}
           </div>
           <CardDescription className="line-clamp-2 mb-3">
             {tool.description}

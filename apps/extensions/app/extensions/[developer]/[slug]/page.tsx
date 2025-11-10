@@ -283,11 +283,20 @@ export default async function ExtensionPage({ params }: PageProps) {
       )}
 
       {/* Overview Section */}
-      {extension.overview && (
+      {(extension.overview || extension.description !== extension.shortDescription) && (
         <div className="py-12 border-b">
           <div className="container mx-auto px-4 max-w-4xl">
             <h2 className="text-3xl font-bold mb-6 text-gray-900">About</h2>
-            <p className="text-lg text-gray-700 leading-relaxed">{extension.overview}</p>
+            <div className="text-lg text-gray-700 leading-relaxed space-y-4">
+              {/* Show full description if it was truncated in the hero */}
+              {extension.description !== extension.shortDescription && (
+                <p>{extension.description}</p>
+              )}
+              {/* Show overview content if it exists and is different from description */}
+              {extension.overview && extension.overview !== extension.description && (
+                <p>{extension.overview}</p>
+              )}
+            </div>
           </div>
         </div>
       )}

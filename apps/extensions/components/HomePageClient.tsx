@@ -3,9 +3,6 @@
 import { useMemo, useState } from "react";
 import type { ExtensionRecord, CategoryRecord } from "@serp-extensions/app-core/lib/catalog";
 import { getExtensionUrl } from "@serp-extensions/app-core/lib/urls";
-import { Button } from "@serp-extensions/ui/components/button";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
 import { ItemCard } from "@/components/ItemCard";
 import { ItemsSearchBar } from "@/components/ItemsSearchBar";
@@ -136,20 +133,6 @@ export function HomePageClient({ extensions, categories }: HomePageClientProps) 
               <p className="text-lg text-muted-foreground">
                 Discover curated browser extensions for productivity, privacy, accessibility, and beyond.
               </p>
-            </div>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Button asChild variant="outline" size="sm">
-                <Link href="/categories" className="inline-flex items-center gap-2">
-                  Explore categories
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/best/dark-mode" className="inline-flex items-center gap-2">
-                  See popular picks
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
             </div>
           </div>
         </div>

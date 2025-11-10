@@ -1,5 +1,4 @@
-import extensionsData from '@serp-extensions/app-core/data/extensions.json';
-import { getTopics, getCategories } from '@serp-extensions/app-core/lib/catalog';
+import { getTopicsWithCounts, getCategoriesWithCounts, getActiveExtensions } from '@serp-extensions/app-core/lib/catalog';
 import { getExtensionUrl, getBestUrl } from '@serp-extensions/app-core/lib/urls';
 
 export const SITEMAP_PAGE_SIZE = 20000;
@@ -43,36 +42,30 @@ export function buildCorePageEntries(): SitemapEntry[] {
   ];
 }
 
-export function buildToolEntries(): SitemapEntry[] {
+export async function buildToolEntries(): Promise<SitemapEntry[]> {
   const baseUrl = resolveBaseUrl();
   const now = new Date();
 
-  return (extensionsData as Array<{ isActive: boolean; slug: string; id: string; developerUsername?: string; updated?: string; isPopular?: boolean }>)
-    .filter((ext) => ext.isActive)
-    .map((ext) => ({
-      loc: `${baseUrl}${getExtensionUrl(ext)}`,
-      lastModified: ext.updated ? new Date(ext.updated) : now,
-      changeFrequency: "weekly",
-      priority: ext.isPopular ? 0.8 : 0.6,
-    }));
+  const extensions = await getActiveExtensions();
+  
+  return extensions.map((ext) => ({
+    loc: `${baseUrl}${getExtensionUrl(ext)}`,
+    lastModified: ext.updated ? new Date(ext.updated) : now,
+    changeFrequency: "weekly",
+    priority: ext.isPopular ? 0.8 : 0.6,
+  }));
 }
 
 export async function buildTopicEntries(): Promise<SitemapEntry[]> {
   const baseUrl = resolveBaseUrl();
   
   try {
-    const allTopics = await getTopics();
+    const topics = await getTopicsWithCounts();
     
     // Filter out topics with no extensions
-    const topics = allTopics.filter((topic) => {
-      return extensionsData.some((ext) => 
-        ext.isActive && 
-        ext.topics && 
-        ext.topics.includes(topic.slug)
-      );
-    });
+    const activeTopics = topics.filter((topic) => topic.count > 0);
     
-    return topics.map((topic) => ({
+    return activeTopics.map((topic) => ({
       loc: `${baseUrl}${getBestUrl(topic.slug)}`,
       lastModified: new Date(),
       changeFrequency: "weekly",
@@ -88,17 +81,12 @@ export async function buildCategoryEntries(): Promise<SitemapEntry[]> {
   const baseUrl = resolveBaseUrl();
   
   try {
-    const allCategories = await getCategories();
+    const categories = await getCategoriesWithCounts();
     
     // Filter out categories with no extensions
-    const categories = allCategories.filter((category) => {
-      return extensionsData.some((ext) => 
-        ext.isActive && 
-        ext.category === category.slug
-      );
-    });
+    const activeCategories = categories.filter((category) => category.count > 0);
     
-    return categories.map((category) => ({
+    return activeCategories.map((category) => ({
       loc: `${baseUrl}/categories/${category.slug}`,
       lastModified: new Date(),
       changeFrequency: "weekly",
