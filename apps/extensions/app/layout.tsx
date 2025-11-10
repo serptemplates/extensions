@@ -1,3 +1,4 @@
+import { GoogleTagManager } from "@next/third-parties/google";
 import { AppLayout } from "@serp-extensions/app-core/components/app-layout";
 import type { Metadata } from "next";
 
@@ -10,5 +11,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <AppLayout>{children}</AppLayout>;
+  return (
+    <>
+      <AppLayout>{children}</AppLayout>
+      <GoogleTagManager gtmId="GTM-WS97TH45" />
+    </>
+  );
 }

@@ -50,6 +50,9 @@ importers:
       '@ffmpeg/ffmpeg':
         specifier: ^0.12.15
         version: 0.12.15
+      '@next/third-parties':
+        specifier: ^15.5.0
+        version: 15.5.6(next@15.5.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react@19.2.0)
       '@serp-extensions/app-core':
         specifier: workspace:*
         version: link:../../packages/app-core
